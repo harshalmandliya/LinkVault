@@ -16,6 +16,7 @@ private Long id;
 private String email;
 private String username;
 private String password;
+private String role="ROLE_USER";
 @Override
 public String toString() {
 	return "User [id=" + id + ", email=" + email + ", username=" + username + ", password=" + password + ", role="
@@ -51,7 +52,7 @@ public String getRole() {
 public void setRole(String role) {
 	this.role = role;
 }
-private String role="ROLE_USER";
+
 
 }
  

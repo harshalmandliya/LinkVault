@@ -14,6 +14,10 @@ import lombok.NoArgsConstructor;
 
 
 public class UserDetailsImpl implements UserDetails{
+	private String username;
+	private String email;
+	private String password;
+	private Collection <? extends GrantedAuthority> authorities;
 public UserDetailsImpl() {
 		
 	}
@@ -56,10 +60,7 @@ public void setPassword(String password) {
 public void setAuthorities(Collection<? extends GrantedAuthority> authorities) {
 	this.authorities = authorities;
 }
-private String username;
-private String email;
-private String password;
-private Collection <? extends GrantedAuthority> authorities;
+
 
 
 	public UserDetailsImpl(Long id, String username, String email, String password,
