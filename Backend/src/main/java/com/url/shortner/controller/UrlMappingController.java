@@ -62,7 +62,7 @@ public ResponseEntity<List<ClickEventDTO>> getUrlAnalytics(@PathVariable String 
 	return ResponseEntity.ok(clickEventDTO);
 }
 
-@GetMapping("/totalCicks")
+@GetMapping("/totalClicks")
 @PreAuthorize("hasRole('USER')")
 public ResponseEntity<Map<LocalDate,Long>> getTotalClicksByDate(Principal principal,
 		@RequestParam("startDate") String startDate,
