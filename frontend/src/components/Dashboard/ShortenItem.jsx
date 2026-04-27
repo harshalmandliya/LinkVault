@@ -14,159 +14,185 @@ import Graph from './Graph';
 const ShortenItem = ({ originalUrl, shortUrl, clickCount, createdDate }) => {
     const { token } = useStoreContext();
     const navigate = useNavigate();
+
     const [isCopied, setIsCopied] = useState(false);
     const [analyticToggle, setAnalyticToggle] = useState(false);
     const [loader, setLoader] = useState(false);
     const [selectedUrl, setSelectedUrl] = useState("");
     const [analyticsData, setAnalyticsData] = useState([]);
 
+    // 🔥 NEW STATES
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+
     const subDomain = import.meta.env.VITE_REACT_FRONT_END_URL.replace(
         /^https?:\/\//,
         ""
-      );
+    );
 
     const analyticsHandler = (shortUrl) => {
-        if (!analyticToggle) {
-            setSelectedUrl(shortUrl);
-        }
+        setSelectedUrl(shortUrl);
         setAnalyticToggle(!analyticToggle);
-    }
+    };
 
+    // 🔥 API CALL WITH DYNAMIC DATES
     const fetchMyShortUrl = async () => {
+        if (!startDate || !endDate) {
+            alert("Please select both start and end date");
+            return;
+        }
+
         setLoader(true);
         try {
-             const { data } = await api.get(`/api/urls/analytics/${selectedUrl}?startDate=2026-12-01T00:00:00&endDate=2026-12-31T23:59:59`, {
-                        headers: {
-                          "Content-Type": "application/json",
-                          Accept: "application/json",
-                          Authorization: "Bearer " + token,
-                        },
-                      });
+            const start = `${startDate}T00:00:00`;
+            const end = `${endDate}T23:59:59`;
+
+            const { data } = await api.get(
+                `/api/urls/analytics/${selectedUrl}?startDate=${start}&endDate=${end}`,
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: "application/json",
+                        Authorization: "Bearer " + token,
+                    },
+                }
+            );
+
             setAnalyticsData(data);
-            setSelectedUrl("");
             console.log(data);
-            
+
         } catch (error) {
             navigate("/error");
             console.log(error);
         } finally {
             setLoader(false);
         }
-    }
+    };
 
-
+    // 🔥 DEFAULT DATE (Last 7 Days)
     useEffect(() => {
-        if (selectedUrl) {
-            fetchMyShortUrl();
-        }
-    }, [selectedUrl]);
+        const today = new Date();
+        const lastWeek = new Date();
 
-  return (
-    <div className={`bg-slate-100 shadow-lg border border-dotted  border-slate-500 px-6 sm:py-1 py-3 rounded-md  transition-all duration-100 `}>
-    <div className={`flex sm:flex-row flex-col  sm:justify-between w-full sm:gap-0 gap-5 py-5 `}>
-      <div className="flex-1 sm:space-y-1 max-w-full overflow-x-auto overflow-y-hidden ">
-        <div className="text-slate-900 pb-1 sm:pb-0   flex items-center gap-2 ">
-            
+        lastWeek.setDate(today.getDate() - 7);
 
-            <Link
-              target='_'
-              className='text-[17px]  font-montserrat font-[600] text-linkColor'
-              to={import.meta.env.VITE_REACT_FRONT_END_URL + "/s/" + `${shortUrl}`}>
-                  {subDomain + "/s/" + `${shortUrl}`}
-            </Link>
-            <FaExternalLinkAlt className="text-linkColor" />
-            </div>
+        setStartDate(lastWeek.toISOString().split("T")[0]);
+        setEndDate(today.toISOString().split("T")[0]);
+    }, []);
 
-        <div className="flex items-center gap-1 ">
-            <h3 className=" text-slate-700 font-[400] text-[17px] ">
-              {originalUrl}
-            </h3>
-          </div>
+    return (
+        <div className="bg-slate-100 shadow-lg border border-dotted border-slate-500 px-6 sm:py-1 py-3 rounded-md">
 
-          <div className="flex   items-center gap-8 pt-6 ">
-            <div className="flex gap-1  items-center font-semibold  text-green-800">
-              <span>
-                <MdOutlineAdsClick className="text-[22px] me-1" />
-              </span>
-              <span className="text-[16px]">{clickCount}</span>
-              <span className="text-[15px] ">
-                {clickCount === 0 || clickCount === 1 ? "Click" : "Clicks"}
-              </span>
-            </div>
+            {/* TOP SECTION */}
+            <div className="flex sm:flex-row flex-col sm:justify-between w-full gap-5 py-5">
 
-            <div className="flex items-center gap-2 font-semibold text-lg text-slate-800">
-              <span>
-                <FaRegCalendarAlt />
-              </span>
-              <span className="text-[17px]">
-                {dayjs(createdDate).format("MMM DD, YYYY")}
-              </span>
-            </div>
-            </div>
-        </div>
+                {/* LEFT */}
+                <div className="flex-1 space-y-2 overflow-x-auto">
 
-        <div className="flex  flex-1  sm:justify-end items-center gap-4">
-            <CopyToClipboard
-                onCopy={() => setIsCopied(true)}
-                text={`${import.meta.env.VITE_REACT_FRONT_END_URL + "/s/" + `${shortUrl}`}`}
-            >
-                <div className="flex cursor-pointer gap-1 items-center bg-btnColor py-2  font-semibold shadow-md shadow-slate-500 px-6 rounded-md text-white ">
-                <button className="">{isCopied ? "Copied" : "Copy"}</button>
-                {isCopied ? (
-                    <LiaCheckSolid className="text-md" />
-                ) : (
-                    <IoCopy className="text-md" />
-                )}
-                </div>
-            </CopyToClipboard>
+                    <div className="flex items-center gap-2">
+                        <Link
+                            target='_'
+                            className='text-[17px] font-semibold text-blue-600'
+                            to={import.meta.env.VITE_REACT_FRONT_END_URL + "/s/" + shortUrl}
+                        >
+                            {subDomain + "/s/" + shortUrl}
+                        </Link>
+                        <FaExternalLinkAlt />
+                    </div>
 
-            <div
-                onClick={() => analyticsHandler(shortUrl)}
-                className="flex cursor-pointer gap-1 items-center bg-rose-700 py-2 font-semibold shadow-md shadow-slate-500 px-6 rounded-md text-white "
-            >
-                <button>Analytics</button>
-                <MdAnalytics className="text-md" />
-          </div>
-          </div>
-        </div>
-    <React.Fragment>
-        <div className={`${
-            analyticToggle ? "flex" : "hidden"
-          }  max-h-96 sm:mt-0 mt-5 min-h-96 relative  border-t-2 w-[100%] overflow-hidden `}>
-            {loader ? (
-                <div className="min-h-[calc(450px-140px)] flex justify-center items-center w-full">
-                    <div className="flex flex-col items-center gap-1">
-                    <Hourglass
-                        visible={true}
-                        height="50"
-                        width="50"
-                        ariaLabel="hourglass-loading"
-                        wrapperStyle={{}}
-                        wrapperClass=""
-                        colors={['#306cce', '#72a1ed']}
-                        />
-                        <p className='text-slate-700'>Please Wait...</p>
+                    <h3 className="text-slate-700 text-[17px]">
+                        {originalUrl}
+                    </h3>
+
+                    <div className="flex gap-8 pt-4">
+
+                        <div className="flex items-center text-green-800 font-semibold">
+                            <MdOutlineAdsClick className="me-1" />
+                            {clickCount} {clickCount <= 1 ? "Click" : "Clicks"}
+                        </div>
+
+                        <div className="flex items-center text-slate-800 font-semibold">
+                            <FaRegCalendarAlt className="me-1" />
+                            {dayjs(createdDate).format("MMM DD, YYYY")}
+                        </div>
+
                     </div>
                 </div>
-                ) : ( 
-                    <>{analyticsData.length === 0 && (
-                        <div className="absolute flex flex-col  justify-center sm:items-center items-end  w-full left-0 top-0 bottom-0 right-0 m-auto">
-                            <h1 className=" text-slate-800 font-serif sm:text-2xl text-[15px] font-bold mb-1">
-                                No Data For This Time Period
-                            </h1>
-                            <h3 className="sm:w-96 w-[90%] sm:ml-0 pl-6 text-center sm:text-lg text-[12px] text-slate-600 ">
-                                Share your short link to view where your engagements are
-                                coming from
-                            </h3>
-                        </div>
-                    )}
-                        <Graph graphData={analyticsData} />
-                    </>
-                    )}
-        </div>
-    </React.Fragment>
-    </div>
-  )
-}
 
-export default ShortenItem
+                {/* RIGHT BUTTONS */}
+                <div className="flex items-center gap-4">
+
+                    <CopyToClipboard
+                        onCopy={() => setIsCopied(true)}
+                        text={`${import.meta.env.VITE_REACT_FRONT_END_URL}/s/${shortUrl}`}
+                    >
+                        <div className="flex cursor-pointer items-center bg-blue-600 px-4 py-2 rounded text-white">
+                            {isCopied ? "Copied" : "Copy"}
+                            {isCopied ? <LiaCheckSolid /> : <IoCopy />}
+                        </div>
+                    </CopyToClipboard>
+
+                    <div
+                        onClick={() => analyticsHandler(shortUrl)}
+                        className="flex cursor-pointer items-center bg-red-600 px-4 py-2 rounded text-white"
+                    >
+                        Analytics <MdAnalytics />
+                    </div>
+
+                </div>
+            </div>
+
+            {/* ANALYTICS SECTION */}
+            {analyticToggle && (
+                <div className="border-t pt-4">
+
+                    {/* 🔥 DATE FILTER UI */}
+                    <div className="flex gap-4 items-center mb-4 flex-wrap">
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="border px-2 py-1 rounded"
+                        />
+
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="border px-2 py-1 rounded"
+                        />
+
+                        <button
+                            onClick={fetchMyShortUrl}
+                            className="bg-blue-600 text-white px-4 py-1 rounded"
+                        >
+                            Apply
+                        </button>
+                    </div>
+
+                    {/* LOADER */}
+                    {loader ? (
+                        <div className="flex justify-center items-center min-h-[200px]">
+                            <Hourglass height="50" width="50" />
+                        </div>
+                    ) : (
+                        <>
+                            {analyticsData.length === 0 ? (
+                                <div className="text-center text-slate-600">
+                                    No Data For This Time Period
+                                </div>
+                            ) : (
+                               <div className="w-full max-w-[700px] h-[350px] mx-auto">
+                                        <Graph graphData={analyticsData} />
+                                                            </div>
+                            )}
+                        </>
+                    )}
+
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default ShortenItem;
