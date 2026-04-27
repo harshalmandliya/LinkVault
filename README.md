@@ -1,128 +1,259 @@
-# LinkValut - Smart URL Shortener (Backend)
+# LinkVault - Smart URL Shortener
 
-LinkValut is a smart URL shortening service built with Spring Boot that provides secure link management with user authentication and analytics tracking.
+![Java](https://img.shields.io/badge/Java-21-orange) ![Spring%20Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-green) ![React](https://img.shields.io/badge/React-19-blue)
 
-## Table of Contents
+LinkVault is a full-stack URL shortening service that provides secure, efficient link management with user authentication, analytics tracking, and a modern responsive UI. Create, manage, and track shortened URLs with detailed click analytics and statistics.
+
+## 📋 Table of Contents
 
 - [Features](#features)
 - [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
 - [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Configuration](#configuration)
+- [Installation & Setup](#installation--setup)
 - [Running the Application](#running-the-application)
-- [API Endpoints](#api-endpoints)
+- [Live Deployment](#live-deployment)
+- [API Documentation](#api-documentation)
 - [Database Schema](#database-schema)
+- [Security Features](#security-features)
 
-## Features
+## ✨ Features
 
-- **URL Shortening**: Create shortened URLs for easy sharing
-- **Redirection**: Seamless redirection from short URLs to original URLs
-- **User Authentication**: Secure login and registration with JWT tokens
-- **Analytics**: Track clicks and gather statistics on shortened URLs
-- **RESTful API**: Clean and well-documented API endpoints
+**Core:** URL Shortening • Smart Redirection • JWT Authentication • Click Analytics • Date-range Filtering
 
-## Tech Stack
+**UI/UX:** Responsive Dashboard • Visual Analytics (Chart.js) • Copy-to-Clipboard • Form Validation • Notifications
 
-- **Backend**: Spring Boot 3.5.7
-- **Language**: Java 21
-- **Database**: MySQL
-- **ORM**: Spring Data JPA
-- **Security**: Spring Security with JWT Authentication
-- **Build Tool**: Maven
+**Security:** JWT Auth • Bcrypt Hashing • RBAC • Protected Endpoints • SQL Injection Prevention
 
-## Project Structure
+## 🛠️ Tech Stack
+
+**Backend:** Spring Boot 3.5.7 • Java 21 • Spring Data JPA • Spring Security • JWT (JJWT 0.13.0) • Maven
+
+**Database:** MySQL (local development) • Neon (production)
+
+**Frontend:** React 19.2.5 • Vite 8.0.10 • Tailwind CSS 3.4.1 • React Router 7.14.2 • Axios 1.15.2 • React Query 5.100.5 • React Hook Form 7.74.0 • Chart.js 4.5.1 • Material-UI 9.0.0
+
+## 📁 Project Structure
 
 ```
-src/main/java/com/url/shortner/
-├── controller/          # REST controllers
-├── dtos/                # Data Transfer Objects
-├── models/              # JPA entities
-├── repository/          # Spring Data JPA repositories
-├── security/            # JWT security configuration
-├── service/             # Business logic implementations
-└── LinkValutApplication.java # Main application class
+├── Backend/                    # Spring Boot Backend
+│   ├── src/main/java/com/url/shortner/
+│   │   ├── controller/         # REST API endpoints
+│   │   ├── service/            # Business logic
+│   │   ├── repository/         # Data access (JPA)
+│   │   ├── models/             # JPA entities
+│   │   ├── dtos/               # Data transfer objects
+│   │   └── security/           # JWT & Spring Security
+│   └── pom.xml                 # Maven config
+│
+├── frontend/                   # React/Vite Frontend
+│   ├── src/
+│   │   ├── components/         # React components
+│   │   ├── api/                # Axios configuration
+│   │   ├── contextApi/         # React Context
+│   │   ├── hooks/              # Custom hooks
+│   │   └── utils/              # Helpers & constants
+│   ├── public/                 # Static files
+│   └── package.json            # npm dependencies
+│
+└── README.md                   # This documentation
 ```
 
-## Prerequisites
+## 📋 Prerequisites
 
-- Java 21
-- Maven 3.8+
-- MySQL Server 8.0+
+- **Node.js** v16+ (frontend)
+- **Java** 21 JDK (backend)
+- **Maven** 3.8+ (backend build)
+- **MySQL** 8.0+ (or a Neon PostgreSQL database)
+- **Git** (version control)
 
-## Installation
+Recommended: IntelliJ IDEA or VS Code, Postman for API testing
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd LinkValut
+## 🚀 Installation & Setup
+
+### Backend Setup
+
+1. **Create Database**
+
+   ```sql
+   CREATE DATABASE linkvault;
    ```
 
-2. Configure the database settings in `src/main/resources/application.properties`
+2. **Configure** `Backend/src/main/resources/application.properties`:
 
-3. Build the project:
+   ```properties
+   spring.datasource.url=jdbc:mysql://localhost:3306/linkvault
+   spring.datasource.username=your_username
+   spring.datasource.password=your_password
+   spring.jpa.hibernate.ddl-auto=update
+   jwt.secret=your_secure_jwt_secret_key
+   jwt.expiration=86400000
+   frontend.url=http://localhost:5173
+   ```
+
+3. **Install Dependencies**
    ```bash
+   cd Backend
    mvn clean install
    ```
 
-## Configuration
+### Frontend Setup
 
-Update the following properties in `src/main/resources/application.properties`:
+1. **Install Dependencies**
 
-```properties
-# Database Configuration
-spring.datasource.url=jdbc:mysql://localhost:3306/{dbname}
-spring.datasource.username=your_username
-spring.datasource.password=your_password
+   ```bash
+   cd frontend
+   npm install
+   ```
 
-# JWT Configuration
-jwt.secret=your_jwt_secret_key
-jwt.expiration=172800000
+2. **Create** `frontend/.env`:
+
+   ```env
+   VITE_API_BASE_URL=http://localhost:8080
+   VITE_APP_NAME=LinkVault
+   VITE_REACT_SUBDOMAIN=http://url.localhost:5173
+   VITE_REACT_FRONT_END_URL=http://localhost:5173
+
+   ```
+
+## ▶️ Running the Application
+
+### Start MySQL
+
+```bash
+# Windows
+net start MySQL80
+
+# macOS
+brew services start mysql@8.0
+
+# Linux
+sudo systemctl start mysql
 ```
 
-## Running the Application
+### Start Backend
 
-Using Maven:
 ```bash
+cd Backend
 mvn spring-boot:run
 ```
 
-Or using Java:
+Backend available at: `http://localhost:8080`
+
+### Start Frontend (New Terminal)
+
 ```bash
-java -jar target/LinkValut-0.0.1-SNAPSHOT.jar
+cd frontend
+npm run dev
 ```
 
-The application will start on port 8080 by default.
+Frontend available at: `http://localhost:5173`
 
-## API Endpoints
+## 🌐 Live Deployment
 
-### Authentication
+- **Frontend (Netlify):** [https://magical-stroopwafel-c1af6f.netlify.app/](https://magical-stroopwafel-c1af6f.netlify.app/)
+- **Backend:** Deployed on Render
+- **Database:** Hosted on Neon
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/auth/public/register` | POST | User registration |
-| `/api/auth/public/login` | POST | User login |
+Use the Netlify link above to access the live project.
 
-### URL Management
+## 📡 API Documentation
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/urls` | POST | Create a new short URL |
-| `/api/urls` | GET | Get all URLs for authenticated user |
-| `/api/urls/{id}` | GET | Get specific URL details |
-| `/api/urls/{id}` | DELETE | Delete a URL |
-| `/{shortCode}` | GET | Redirect to original URL |
+**Authentication:**
 
-## Database Schema
+- `POST /api/auth/public/register` - Register new user
+- `POST /api/auth/public/login` - Login user (returns JWT token)
 
-The application uses three main entities:
+**URL Management (Requires JWT):**
 
-1. **User**: Stores user information (username, email, password, role)
-2. **UrlMapping**: Stores URL mappings (original URL, short URL, creation date, click count)
-3. **ClickEvent**: Tracks click events on shortened URLs (timestamp, user agent, IP address)
+- `POST /api/urls/shorten` - Create shortened URL
+- `GET /api/urls/myurls` - Get user's URLs
+- `GET /api/urls/analytics/{shortUrl}` - Get click events by date range
+- `GET /api/urls/totalClicks` - Get clicks aggregated by date
 
-All tables are automatically created and managed by Hibernate based on the entity definitions.
+**Public:**
 
-## Frontend Integration
+- `GET /{shortUrl}` - Redirect to original URL
 
-This backend provides a complete REST API that can be consumed by any frontend framework. The frontend will be added separately and will communicate with this backend through the documented API endpoints.
+Example (Shorten URL):
+
+```bash
+POST /api/urls/shorten
+Authorization: Bearer {token}
+Content-Type: application/json
+
+{ "originalUrl": "https://example.com/very/long/url" }
+```
+
+#### Login User
+
+```
+POST /api/auth/public/login
+Content-Type: application/json
+
+{
+  "username": "john_doe",
+  "password": "secure_password123"
+}
+
+Response: 200 OK
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "type": "Bearer",
+  "username": "john_doe"
+}
+```
+
+### URL Mapping Endpoints
+
+## 🗄️ Database Schema
+
+### Users Table
+
+```sql
+CREATE TABLE user (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  username VARCHAR(255) NOT NULL UNIQUE,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(50) DEFAULT 'ROLE_USER',
+  created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### URL Mappings Table
+
+```sql
+CREATE TABLE url_mapping (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  original_url LONGTEXT NOT NULL,
+  short_url VARCHAR(255) NOT NULL UNIQUE,
+  click_count INT DEFAULT 0,
+  created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  user_id BIGINT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
+);
+```
+
+### Click Events Table
+
+```sql
+CREATE TABLE click_event (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  short_url VARCHAR(255) NOT NULL,
+  timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  user_agent VARCHAR(500),
+  ip_address VARCHAR(50),
+  url_mapping_id BIGINT NOT NULL,
+  FOREIGN KEY (url_mapping_id) REFERENCES url_mapping(id) ON DELETE CASCADE
+);
+```
+
+## 🔐 Security Features
+
+- **JWT Authentication**: Stateless token-based auth
+- **Spring Security**: Role-based access control
+- **Password Hashing**: Bcrypt encryption
+- **CORS Configuration**: Protected cross-origin requests
+- **Input Validation**: DTOs and form validation
+- **Protected Endpoints**: @PreAuthorize annotations
+- **SQL Injection Prevention**: Parameterized JPA queries
